@@ -35,7 +35,7 @@ CLOCK IN deadline: **8 October 2026**. Required package: functional Android APK,
 - [x] Test the Android system photo picker from the final add-item form without requesting broad media access.
 - [x] Re-test wallet return from Seed Vault in the final acceptance pass.
 - [x] Scan the publishable repository and APK configuration for secrets and private identifiers.
-- [ ] Prepare a clean judge-accessible or sanitized public GitHub source repository and pass `npm run audit:public`.
+- [x] Publish the sanitized source repository at `koltigin/seekase-mobile`, pass `npm run audit:public`, and record the submitted commit.
 - [ ] Record the demo video and prepare the short product deck, screenshots, feature list, and test instructions.
 
 ## P1 — brand and store assets

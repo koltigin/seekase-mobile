@@ -12,6 +12,7 @@ Prepared for the first Android / Solana Mobile submission path.
 
 ## Related assets
 
+- Public submission source: `https://github.com/koltigin/seekase-mobile` at commit `375d56442bb3b432fb1d21d004ce88dd049a7d70`
 - Store screenshots: `assets/brand/exports/solana-dapp-store/screenshots/en-US/`
 - Store icon, banner, and feature graphic: `assets/brand/exports/solana-dapp-store/`
 - Demo script: `docs/demo-script.md`
@@ -32,5 +33,4 @@ Prepared for the first Android / Solana Mobile submission path.
 
 1. Record wallet entry and Mainnet check-in, then edit them together with `Seekase-Core-Demo-Raw.mp4`, narration, and the final title card.
 2. Publish `seekase.app` after DNS and the monitored support contact are configured.
-3. Publish the prepared sanitized source repository or grant the judges access.
-4. Complete the final submission form with the exact APK, source, video, deck, and website URLs.
+3. Complete the final submission form with the exact APK, source, video, deck, and website URLs.
