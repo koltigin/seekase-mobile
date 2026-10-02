@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://seekase.app/sitemap.xml

@@ -1,0 +1,24 @@
+{
+  "brand": "Seekase",
+  "version": "1.1",
+  "colors": {
+    "archiveBlack": "#161310",
+    "warmIvory": "#F3EEE4",
+    "clayMarkerDark": "#C47B6A",
+    "lightPaper": "#F4F0E8",
+    "lightInk": "#1A1713",
+    "museumLineDark": "#3A342C",
+    "museumLineLight": "#E6E0D4"
+  },
+  "iconography": {
+    "canvas": 24,
+    "strokeWidth": 1.75,
+    "lineCap": "round",
+    "lineJoin": "round"
+  },
+  "androidAdaptiveIcon": {
+    "canvas": 108,
+    "safeArea": 66,
+    "background": "#161310"
+  }
+}

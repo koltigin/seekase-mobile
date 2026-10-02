@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Seekase — CLOCK IN Pitch Deck</title>
+  <style>
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #161310; color: #f3eee4; font-family: Inter, Arial, sans-serif; }
+    .slide { position: relative; width: 13.333in; height: 7.5in; padding: .62in .72in; overflow: hidden; page-break-after: always; background: #161310; }
+    .slide:last-child { page-break-after: auto; }
+    .eyebrow { margin: 0 0 .18in; color: #c47b6a; font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; line-height: 1.02; letter-spacing: -.045em; }
+    h1 { max-width: 8.6in; font-size: 64px; }
+    h2 { max-width: 8.7in; font-size: 49px; }
+    h3 { font-size: 25px; }
+    p { color: #b9b0a5; font-size: 18px; line-height: 1.48; }
+    ul { margin: .28in 0 0; padding-left: .28in; color: #d5cec4; font-size: 17px; line-height: 1.5; }
+    li { margin-bottom: .09in; }
+    .lockup { width: 2.25in; }
+    .cover { display: grid; grid-template-columns: 1.25fr .75fr; align-items: center; gap: .6in; }
+    .cover h1 { margin-top: .5in; font-size: 70px; }
+    .tagline { max-width: 6.7in; margin-top: .25in; font-size: 23px; }
+    .phone { justify-self: end; width: 3.25in; padding: 10px; border: 1px solid #3b342d; border-radius: 30px; background: #211d19; box-shadow: 0 28px 60px rgba(0,0,0,.35); }
+    .phone img { display: block; width: 100%; border-radius: 21px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .45in; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .2in; margin-top: .35in; }
+    .card { min-height: 1.8in; padding: .28in; border: 1px solid #3b342d; border-radius: 22px; background: #211d19; }
+    .card p { margin-bottom: 0; font-size: 15px; }
+    .number { display: block; margin-bottom: .2in; color: #c47b6a; font-size: 13px; font-weight: 800; letter-spacing: .14em; }
+    .screens { display: grid; grid-template-columns: repeat(3, 1fr); gap: .24in; align-items: start; }
+    .screens img { width: 100%; border-radius: 18px; border: 1px solid #3b342d; }
+    .screens.two { grid-template-columns: repeat(2, 1fr); max-width: 6.2in; margin-left: auto; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .18in; margin-top: .38in; }
+    .stat { padding: .25in; border-radius: 20px; background: #f3eee4; color: #1a1713; }
+    .stat strong { display: block; font-size: 34px; letter-spacing: -.04em; }
+    .stat span { font-size: 13px; color: #615950; }
+    .flow { display: flex; align-items: center; gap: .12in; margin-top: .42in; }
+    .flow div { flex: 1; padding: .25in .16in; border: 1px solid #3b342d; border-radius: 18px; text-align: center; background: #211d19; }
+    .flow b { display: block; margin-bottom: 5px; }
+    .flow span { color: #8e857b; font-size: 12px; }
+    .arrow { flex: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; color: #c47b6a; }
+    .close { display: grid; place-items: center; text-align: center; }
+    .close .mark { width: 1.05in; margin-bottom: .35in; }
+    .close h2 { max-width: 9in; font-size: 62px; }
+    .url { margin-top: .35in; color: #c47b6a; font-size: 24px; font-weight: 700; }
+    .foot { position: absolute; right: .72in; bottom: .32in; color: #756d64; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <section class="slide cover">
+    <div>
+      <img class="lockup" src="../assets/brand/seekase-lockup-dark.svg" alt="Seekase">
+      <p class="eyebrow">Seeker-first social collecting</p>
+      <h1>Your collection has a story. Give it a place.</h1>
+      <p class="tagline">Seekase turns personal collections into living digital museums, built around objects, context, and the collectors behind them.</p>
+    </div>
+    <div class="phone"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/04-discover.png" alt="Seekase Discover"></div>
+    <span class="foot">01 / 08</span>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">The problem</p>
+    <h2>Meaningful objects lose their context.</h2>
+    <div class="grid-3">
+      <article class="card"><span class="number">01</span><h3>Scattered records</h3><p>Photos, notes, spreadsheets, and specialist groups keep fragments of the same collection apart.</p></article>
+      <article class="card"><span class="number">02</span><h3>Marketplace framing</h3><p>Existing products reduce collections to prices, listings, and transactions instead of stories and provenance.</p></article>
+      <article class="card"><span class="number">03</span><h3>Weak discovery</h3><p>General social networks do not understand cabinets, categories, object metadata, or collector progress.</p></article>
+    </div>
+    <div class="stat-row"><div class="stat"><strong>69</strong><span>collection categories</span></div><div class="stat"><strong>1</strong><span>clear object-first structure</span></div><div class="stat"><strong>0</strong><span>marketplace pressure</span></div></div>
+    <span class="foot">02 / 08</span>
+  </section>
+
+  <section class="slide grid-2">
+    <div>
+      <p class="eyebrow">The product</p>
+      <h2>A personal museum in your pocket.</h2>
+      <ul>
+        <li>Create named public cabinets across broad collecting categories.</li>
+        <li>Add photographs, category-specific details, stories, dates, makers, publishers, and provenance.</li>
+        <li>Discover collectors, follow, like, save, and comment.</li>
+        <li>Build progress through meaningful collection and streak badges.</li>
+      </ul>
+    </div>
+    <div class="screens two"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/06-collection.png" alt="Collection"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/07-object.png" alt="Object detail"></div>
+    <span class="foot">03 / 08</span>
+  </section>
+
+  <section class="slide grid-2">
+    <div>
+      <p class="eyebrow">Why Seeker</p>
+      <h2>Identity and daily participation, with privacy.</h2>
+      <ul>
+        <li>Mobile Wallet Adapter and Sign In With Solana provide wallet-first entry.</li>
+        <li>Backend Mainnet verification produces a genuine Seeker Genesis badge.</li>
+        <li>A daily signed Memo check-in creates a visible collecting streak.</li>
+        <li>Wallet addresses and token details stay out of the public profile.</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/05-profile.png" alt="Collector profile"></div>
+    <span class="foot">04 / 08</span>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Retention loop</p>
+    <h2>Every object creates a reason to return.</h2>
+    <div class="flow">
+      <div><b>Add</b><span>photograph and context</span></div><div class="arrow">→</div>
+      <div><b>Publish</b><span>a living cabinet</span></div><div class="arrow">→</div>
+      <div><b>Connect</b><span>through social actions</span></div><div class="arrow">→</div>
+      <div><b>Return</b><span>for check-in and streak</span></div><div class="arrow">→</div>
+      <div><b>Progress</b><span>through earned badges</span></div>
+    </div>
+    <div class="screens" style="margin-top:.42in"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/01-onboarding-collections.png" alt="Collections"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/02-onboarding-community.png" alt="Community"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/03-onboarding-identity.png" alt="Identity"></div>
+    <span class="foot">05 / 08</span>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow">Trust and architecture</p>
+    <h2>Public collections. Private wallet identity.</h2>
+    <div class="flow">
+      <div><b>Seeker app</b><span>Expo + React Native</span></div><div class="arrow">→</div>
+      <div><b>Supabase</b><span>Auth, Postgres, Storage, RLS</span></div><div class="arrow">↔</div>
+      <div><b>Solana Mainnet</b><span>SIWS, SGT checks, Memo check-in</span></div>
+    </div>
+    <div class="grid-3">
+      <article class="card"><h3>Derived verification</h3><p>Profiles receive badge status. Raw wallet addresses, balances, token accounts, and signatures are excluded from public profile data.</p></article>
+      <article class="card"><h3>Controlled access</h3><p>Row Level Security, Edge Functions, private wallet identity tables, reporting, and blocking protect account boundaries.</p></article>
+      <article class="card"><h3>User control</h3><p>In-app account deletion removes owned online data and photos. Public blockchain transactions remain immutable.</p></article>
+    </div>
+    <span class="foot">06 / 08</span>
+  </section>
+
+  <section class="slide grid-2">
+    <div>
+      <p class="eyebrow">Working today</p>
+      <h2>A release-signed product on a physical Seeker.</h2>
+      <ul>
+        <li>Wallet and email account entry</li>
+        <li>Profiles, collections, items, and image upload</li>
+        <li>Discover, search, follows, likes, saves, comments, and activity</li>
+        <li>Reporting, blocking, support, and account deletion</li>
+        <li>Seeker Genesis verification and Mainnet daily check-in</li>
+        <li>69-category icon system and consistent English interface</li>
+      </ul>
+      <div class="stat-row"><div class="stat"><strong>127</strong><span>passing app tests</span></div><div class="stat"><strong>8</strong><span>real device store screens</span></div><div class="stat"><strong>21/21</strong><span>Expo Doctor checks</span></div></div>
+    </div>
+    <div class="phone"><img src="../assets/brand/exports/solana-dapp-store/screenshots/en-US/08-categories.png" alt="Categories"></div>
+    <span class="foot">07 / 08</span>
+  </section>
+
+  <section class="slide close">
+    <div>
+      <img class="mark" src="../assets/brand/seekase-mark-dark.svg" alt="Seekase mark">
+      <p class="eyebrow">The vision</p>
+      <h2>The trusted global home for the objects people choose to keep.</h2>
+      <p class="url">seekase.app</p>
+    </div>
+    <span class="foot">08 / 08</span>
+  </section>
+</body>
+</html>

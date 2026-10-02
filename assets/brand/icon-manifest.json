@@ -1,0 +1,24 @@
+{
+  "navigation": ["discover", "collections", "add", "activity", "profile"],
+  "actions": ["search", "heart", "save", "comment", "share", "camera", "wallet", "verified", "settings"],
+  "badgeIcons": {
+    "source": "badge-icon-paths.json",
+    "exports": "badges/achievements",
+    "count": 15,
+    "identitySpecific": true,
+    "legacyFamilySources": ["wallet-verified", "seeker-verified", "collector-milestone", "checkin-streak"]
+  },
+  "categoryIcons": {
+    "source": "category-icon-paths.json",
+    "exports": "icons/categories",
+    "count": 69,
+    "includesAllControl": true,
+    "subcategoryPolicy": "inherit-parent-unless-approved-variant"
+  },
+  "rules": {
+    "walletVerified": "Proves wallet control only; never represents SGT ownership.",
+    "seekerVerified": "May be shown only after genuine backend SGT verification.",
+    "badgeIdentity": "Every published achievement uses its own silhouette; family artwork is fallback only.",
+    "clayMarker": "Reserved for a selected record, active status, unread state, or earned badge detail."
+  }
+}
