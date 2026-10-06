@@ -19,6 +19,8 @@ export type PublicCollectionSummary = {
   owner: PublicCollectorSummary
   itemCount: number
   likeCount: number
+  commentCount: number
+  viewCount: number
   coverPath?: string
   createdAt: string
 }
@@ -32,11 +34,29 @@ export type PublicCollectorDetail = PublicCollectorSummary & {
 
 type PublicProfileRow = Pick<ProfileRow, 'id' | 'display_name' | 'handle' | 'avatar_path'>
 type PublicItemCardRow = { collection_id: string; cover_path: string | null }
+type CollectionEngagementRow = {
+  collection_id: string
+  like_count: number
+  comment_count: number
+  view_count: number
+}
 
 function clientOrUnavailable() {
   const supabase = getSupabase()
   if (!supabase) return { supabase: null as null, fail: unavailableResult() }
   return { supabase, fail: null as null }
+}
+
+/** Records at most one audience member per collection; the database excludes the owner. */
+export async function recordPublicCollectionView(collectionId: string): Promise<RepoResult<true>> {
+  const { supabase, fail } = clientOrUnavailable()
+  if (!supabase) return fail
+  const result = await supabase.rpc('record_collection_view', { target_collection_id: collectionId })
+  if (result.error) {
+    const mapped = mapPostgrestError(result.error.message, 'Could not record this collection view.')
+    return repoFail(mapped.code, mapped.message)
+  }
+  return repoOk(true)
 }
 
 /** Public derived badge ids only. Evidence and wallet identifiers never enter this DTO. */
@@ -72,17 +92,17 @@ export async function listPublicCollections(limit = 50): Promise<RepoResult<Publ
 
   const collectionIds = collections.map((row) => row.id)
   const ownerIds = [...new Set(collections.map((row) => row.owner_id))]
-  const [profilesResult, itemsResult, likesResult] = await Promise.all([
+  const [profilesResult, itemsResult, engagementResult] = await Promise.all([
     supabase.from('profiles').select('id,display_name,handle,avatar_path').in('id', ownerIds),
     supabase
       .from('items')
       .select('collection_id,cover_path')
       .in('collection_id', collectionIds)
       .order('created_at', { ascending: false }),
-    supabase.from('collection_likes').select('collection_id').in('collection_id', collectionIds),
+    supabase.rpc('collection_engagement_counts', { target_collection_ids: collectionIds }),
   ])
 
-  const firstError = profilesResult.error ?? itemsResult.error ?? likesResult.error
+  const firstError = profilesResult.error ?? itemsResult.error ?? engagementResult.error
   if (firstError) {
     const mapped = mapPostgrestError(firstError.message, 'Could not load public collection details.')
     return repoFail(mapped.code, mapped.message)
@@ -98,10 +118,9 @@ export async function listPublicCollections(limit = 50): Promise<RepoResult<Publ
     itemCounts.set(item.collection_id, (itemCounts.get(item.collection_id) ?? 0) + 1)
     if (item.cover_path && !firstPhoto.has(item.collection_id)) firstPhoto.set(item.collection_id, item.cover_path)
   }
-  const likeCounts = new Map<string, number>()
-  for (const like of likesResult.data as { collection_id: string }[]) {
-    likeCounts.set(like.collection_id, (likeCounts.get(like.collection_id) ?? 0) + 1)
-  }
+  const engagementById = new Map(
+    (engagementResult.data as CollectionEngagementRow[]).map((row) => [row.collection_id, row]),
+  )
 
   return repoOk(
     collections.flatMap((collection) => {
@@ -123,7 +142,9 @@ export async function listPublicCollections(limit = 50): Promise<RepoResult<Publ
             avatarPath: profile.avatar_path ?? undefined,
           },
           itemCount: itemCounts.get(collection.id) ?? 0,
-          likeCount: likeCounts.get(collection.id) ?? 0,
+          likeCount: engagementById.get(collection.id)?.like_count ?? 0,
+          commentCount: engagementById.get(collection.id)?.comment_count ?? 0,
+          viewCount: engagementById.get(collection.id)?.view_count ?? 0,
           coverPath,
           createdAt: collection.created_at,
         },
@@ -142,16 +163,16 @@ export async function getPublicCollection(id: string): Promise<RepoResult<Public
   }
   if (!collectionResult.data) return repoOk(null)
   const collection = collectionResult.data as CollectionRow
-  const [profileResult, itemsResult, likesResult] = await Promise.all([
+  const [profileResult, itemsResult, engagementResult] = await Promise.all([
     supabase.from('profiles').select('id,display_name,handle,avatar_path').eq('id', collection.owner_id).maybeSingle(),
     supabase
       .from('items')
       .select('collection_id,cover_path')
       .eq('collection_id', id)
       .order('created_at', { ascending: false }),
-    supabase.from('collection_likes').select('collection_id').eq('collection_id', id),
+    supabase.rpc('collection_engagement_counts', { target_collection_ids: [id] }),
   ])
-  const firstError = profileResult.error ?? itemsResult.error ?? likesResult.error
+  const firstError = profileResult.error ?? itemsResult.error ?? engagementResult.error
   if (firstError) {
     const mapped = mapPostgrestError(firstError.message, 'Could not load this collection.')
     return repoFail(mapped.code, mapped.message)
@@ -159,6 +180,7 @@ export async function getPublicCollection(id: string): Promise<RepoResult<Public
   if (!profileResult.data) return repoOk(null)
   const profile = profileResult.data as PublicProfileRow
   const items = (itemsResult.data as PublicItemCardRow[]).filter((item) => Boolean(item.cover_path))
+  const engagement = (engagementResult.data as CollectionEngagementRow[])[0]
   if (!items.length) return repoOk(null)
   return repoOk({
     id: collection.id,
@@ -174,7 +196,9 @@ export async function getPublicCollection(id: string): Promise<RepoResult<Public
       avatarPath: profile.avatar_path ?? undefined,
     },
     itemCount: items.length,
-    likeCount: likesResult.data?.length ?? 0,
+    likeCount: engagement?.like_count ?? 0,
+    commentCount: engagement?.comment_count ?? 0,
+    viewCount: engagement?.view_count ?? 0,
     coverPath: collection.cover_path ?? items.find((item) => item.cover_path)?.cover_path ?? undefined,
     createdAt: collection.created_at,
   })
@@ -207,20 +231,20 @@ export async function getPublicCollector(id: string): Promise<RepoResult<PublicC
   if (!badgesResult.ok) return badgesResult
   const collections = collectionsResult.data as CollectionRow[]
   const collectionIds = collections.map((collection) => collection.id)
-  const [itemsResult, likesResult] = collectionIds.length
+  const [itemsResult, engagementResult] = collectionIds.length
     ? await Promise.all([
         supabase
           .from('items')
           .select('collection_id,cover_path')
           .in('collection_id', collectionIds)
           .order('created_at', { ascending: false }),
-        supabase.from('collection_likes').select('collection_id').in('collection_id', collectionIds),
+        supabase.rpc('collection_engagement_counts', { target_collection_ids: collectionIds }),
       ])
     : [
         { data: [], error: null },
         { data: [], error: null },
       ]
-  const firstError = itemsResult.error ?? likesResult.error
+  const firstError = itemsResult.error ?? engagementResult.error
   if (firstError) {
     const mapped = mapPostgrestError(firstError.message, 'Could not load this collector.')
     return repoFail(mapped.code, mapped.message)
@@ -233,10 +257,9 @@ export async function getPublicCollector(id: string): Promise<RepoResult<PublicC
     itemCounts.set(item.collection_id, (itemCounts.get(item.collection_id) ?? 0) + 1)
     if (item.cover_path && !firstPhoto.has(item.collection_id)) firstPhoto.set(item.collection_id, item.cover_path)
   }
-  const likeCounts = new Map<string, number>()
-  for (const like of likesResult.data as { collection_id: string }[]) {
-    likeCounts.set(like.collection_id, (likeCounts.get(like.collection_id) ?? 0) + 1)
-  }
+  const engagementById = new Map(
+    (engagementResult.data as CollectionEngagementRow[]).map((row) => [row.collection_id, row]),
+  )
   const profile = profileResult.data
   const owner: PublicCollectorSummary = {
     id: profile.id,
@@ -262,7 +285,9 @@ export async function getPublicCollector(id: string): Promise<RepoResult<PublicC
         tags: collection.tags ?? [],
         owner,
         itemCount,
-        likeCount: likeCounts.get(collection.id) ?? 0,
+        likeCount: engagementById.get(collection.id)?.like_count ?? 0,
+        commentCount: engagementById.get(collection.id)?.comment_count ?? 0,
+        viewCount: engagementById.get(collection.id)?.view_count ?? 0,
         coverPath,
         createdAt: collection.created_at,
       }]

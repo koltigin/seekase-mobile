@@ -28,6 +28,7 @@ export function getSupabase(): SeekaseSupabase | null {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
+      flowType: 'pkce',
     },
   })
   return client

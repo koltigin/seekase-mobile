@@ -15,11 +15,6 @@ function hex(bytes: Uint8Array) {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 function buffer(bytes: Uint8Array) { return bytes.slice().buffer as ArrayBuffer }
-function base64Url(bytes: Uint8Array) {
-  let binary = ''
-  for (const byte of bytes) binary += String.fromCharCode(byte)
-  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/u, '')
-}
 function fromBase64(value: string) {
   if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(value) || value.length % 4) throw new Error('Invalid base64.')
   return Uint8Array.from(atob(value), (character) => character.charCodeAt(0))
@@ -105,7 +100,10 @@ Deno.serve(async (request) => {
       if (recent.error) throw recent.error
       if ((recent.count ?? 0) >= 5) return response(429, { error: 'Too many wallet sign-in attempts. Please wait a minute.' })
       const issued = new Date(), expires = new Date(issued.getTime() + 300_000)
-      const payload: Record<string, string> = { domain, address: wallet.value, intent, statement: intent === 'link' ? 'Link this wallet to your open Seekase account. This does not send a transaction or spend SOL.' : 'Sign in to Seekase. This does not send a transaction or spend SOL.', uri, version: '1', chainId: solanaNetwork === 'mainnet' ? 'solana:mainnet' : 'solana:devnet', nonce: base64Url(crypto.getRandomValues(new Uint8Array(18))), issuedAt: issued.toISOString(), expirationTime: expires.toISOString(), requestId: crypto.randomUUID() }
+      // SIWS wallets require at least eight strictly alphanumeric nonce
+      // characters. Hex keeps the nonce random while remaining compatible
+      // with Seeker Wallet and other strict SIWS implementations.
+      const payload: Record<string, string> = { domain, address: wallet.value, intent, statement: intent === 'link' ? 'Link this wallet to your open Seekase account. This does not send a transaction or spend SOL.' : 'Sign in to Seekase. This does not send a transaction or spend SOL.', uri, version: '1', chainId: solanaNetwork === 'mainnet' ? 'solana:mainnet' : 'solana:devnet', nonce: hex(crypto.getRandomValues(new Uint8Array(18))), issuedAt: issued.toISOString(), expirationTime: expires.toISOString(), requestId: crypto.randomUUID() }
       const { error } = await admin.from('wallet_auth_challenges').insert({ request_id: payload.requestId, wallet_lookup_hash: lookup, nonce_hash: await sha256(payload.nonce), signed_message_hash: await sha256(message(payload)), expected_fields: payload, expires_at: payload.expirationTime })
       if (error) throw error
       return response(200, { payload })

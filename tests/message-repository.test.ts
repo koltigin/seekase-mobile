@@ -23,7 +23,7 @@ beforeEach(() => {
   mocks.getSupabase.mockReturnValue(
     createClient<Database>('https://seekase.example.test', 'test-anon-key', {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-      global: { fetch: transport },
+      global: { fetch: transport as unknown as typeof fetch },
     }),
   )
 })

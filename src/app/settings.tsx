@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { BadgeChip } from '../components/profile/badge-chip'
 import { Screen } from '../components/ui/screen'
@@ -16,6 +16,17 @@ const themes: { id: ThemePreference; label: string }[] = [
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
 ]
+
+const seekaseSocialLinks = {
+  instagram: 'https://www.instagram.com/seekaseapp',
+  x: 'https://x.com/seekaseapp',
+}
+
+const seekasePolicyLinks = {
+  privacy: 'https://seekase.app/privacy/',
+  terms: 'https://seekase.app/terms/',
+  community: 'https://seekase.app/community/',
+}
 
 export default function SettingsScreen() {
   const { colors } = useTheme()
@@ -119,12 +130,43 @@ export default function SettingsScreen() {
           <Text style={{ ...type.body, color: colors.muted }}>
             Account collections are publicly readable. Wallet identity and device-only collections stay private.
           </Text>
+          <View className="mt-3">
+            <Row
+              label="Privacy Policy"
+              detail="How Seekase handles account and wallet data"
+              onPress={() => void Linking.openURL(seekasePolicyLinks.privacy)}
+            />
+            <Row
+              label="Terms of Use"
+              detail="Rules for using Seekase"
+              onPress={() => void Linking.openURL(seekasePolicyLinks.terms)}
+            />
+            <Row
+              label="Community Guidelines"
+              detail="Content and conduct standards"
+              onPress={() => void Linking.openURL(seekasePolicyLinks.community)}
+            />
+          </View>
         </Section>
 
         <Section title="About">
           <Row label="About Seekase" detail="SEEKer + showCASE" />
+          <Row
+            label="Support email"
+            detail="support@seekase.app"
+            onPress={() => void Linking.openURL('mailto:support@seekase.app')}
+          />
+          <Row
+            label="Instagram"
+            detail="@seekaseapp"
+            onPress={() => void Linking.openURL(seekaseSocialLinks.instagram)}
+          />
+          <Row label="X" detail="@seekaseapp" onPress={() => void Linking.openURL(seekaseSocialLinks.x)} />
           <Row label="Replay introduction" onPress={() => router.push('/onboarding?preview=1')} />
           <Row label="Version" detail={Constants.expoConfig?.version ?? '1.0.0'} />
+          <Text className="mt-4 text-center text-[13px]" style={{ color: colors.muted }}>
+            Built with ❤️ by KolTigin on Solana.
+          </Text>
         </Section>
 
         {__DEV__ ? (

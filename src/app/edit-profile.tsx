@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
 import { useRouter } from 'expo-router'
 import { Screen } from '../components/ui/screen'
 import { FormActionBar } from '../components/ui/form-action-bar'
@@ -17,7 +27,8 @@ import { radius, space, type } from '../theme/tokens'
 export default function EditProfileScreen() {
   const { colors } = useTheme()
   const { profile, updateProfile } = useAppState()
-  const { user } = useAuth()
+  const auth = useAuth()
+  const { user } = auth
   const router = useRouter()
   const [displayName, setDisplayName] = useState(profile.displayName)
   const [handle, setHandle] = useState(profile.handle.replace(/^@/, ''))
@@ -33,6 +44,14 @@ export default function EditProfileScreen() {
   const [removeAvatar, setRemoveAvatar] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [identityNote, setIdentityNote] = useState<string | null>(null)
+  const [linkingGoogle, setLinkingGoogle] = useState(false)
+  const [unlinkingGoogle, setUnlinkingGoogle] = useState(false)
+  const [linkingApple, setLinkingApple] = useState(false)
+  const [unlinkingApple, setUnlinkingApple] = useState(false)
+
+  const googleLinked = Boolean(user?.identities?.some((identity) => identity.provider === 'google'))
+  const appleLinked = Boolean(user?.identities?.some((identity) => identity.provider === 'apple'))
 
   useEffect(() => {
     return subscribeCategoryPick((ids, target) => {
@@ -97,6 +116,79 @@ export default function EditProfileScreen() {
     }
     setBusy(false)
     router.back()
+  }
+
+  async function linkGoogle() {
+    if (linkingGoogle || googleLinked) return
+    setLinkingGoogle(true)
+    setIdentityNote(null)
+    const result = await auth.linkGoogleIdentity()
+    if (result.ok) {
+      setIdentityNote('Google is now linked to this Seekase account.')
+    } else if (!result.cancelled) {
+      setIdentityNote(result.error?.message ?? 'Could not link Google. Please try again.')
+    }
+    setLinkingGoogle(false)
+  }
+
+  function confirmUnlinkGoogle() {
+    if (unlinkingGoogle || !googleLinked) return
+    Alert.alert(
+      'Remove Google sign-in?',
+      'You will continue to use your other linked sign-in method for this Seekase account.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            setUnlinkingGoogle(true)
+            setIdentityNote(null)
+            void auth.unlinkGoogleIdentity().then((result) => {
+              setIdentityNote(
+                result.ok ? 'Google sign-in was removed.' : (result.error?.message ?? 'Could not remove Google.'),
+              )
+              setUnlinkingGoogle(false)
+            })
+          },
+        },
+      ],
+    )
+  }
+
+  async function linkApple() {
+    if (linkingApple || appleLinked || auth.appleStatus !== 'available') return
+    setLinkingApple(true)
+    setIdentityNote(null)
+    const result = await auth.linkAppleIdentity()
+    if (result.ok) setIdentityNote('Apple ID is now linked to this Seekase account.')
+    else if (!result.cancelled) setIdentityNote(result.error?.message ?? 'Could not link Apple ID. Please try again.')
+    setLinkingApple(false)
+  }
+
+  function confirmUnlinkApple() {
+    if (unlinkingApple || !appleLinked) return
+    Alert.alert(
+      'Remove Apple ID sign-in?',
+      'You will continue to use your other linked sign-in method for this Seekase account.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            setUnlinkingApple(true)
+            setIdentityNote(null)
+            void auth.unlinkAppleIdentity().then((result) => {
+              setIdentityNote(
+                result.ok ? 'Apple ID sign-in was removed.' : (result.error?.message ?? 'Could not remove Apple ID.'),
+              )
+              setUnlinkingApple(false)
+            })
+          },
+        },
+      ],
+    )
   }
 
   return (
@@ -228,6 +320,67 @@ export default function EditProfileScreen() {
           <Field label="YouTube" value={youtube} onChange={setYoutube} placeholder="@handle" />
           <Field label="TikTok" value={tiktok} onChange={setTiktok} placeholder="@handle" />
           <Field label="X" value={x} onChange={setX} placeholder="@handle" />
+
+          {user ? (
+            <View className="mb-5 mt-3 px-4 py-4" style={{ backgroundColor: colors.surface, borderRadius: radius.lg }}>
+              <Text style={{ ...type.eyebrow, color: colors.faint }}>Sign-in methods</Text>
+              <Text className="mt-2 text-[12px] leading-5" style={{ color: colors.muted }}>
+                Add another secure way to enter this same Seekase account. Your public profile does not show these
+                methods.
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: linkingGoogle || unlinkingGoogle }}
+                disabled={linkingGoogle || unlinkingGoogle}
+                onPress={() => (googleLinked ? confirmUnlinkGoogle() : void linkGoogle())}
+                className="mt-3 flex-row items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: colors.chip,
+                  borderRadius: radius.md,
+                  opacity: linkingGoogle || unlinkingGoogle ? 0.65 : 1,
+                }}
+              >
+                <Text className="text-[14px] font-medium" style={{ color: colors.ink }}>
+                  Google
+                </Text>
+                <Text className="text-[12px]" style={{ color: googleLinked ? colors.accent : colors.muted }}>
+                  {googleLinked ? (unlinkingGoogle ? 'Removing…' : 'Remove') : linkingGoogle ? 'Opening…' : 'Link'}
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: linkingApple || unlinkingApple || auth.appleStatus !== 'available' }}
+                disabled={linkingApple || unlinkingApple || auth.appleStatus !== 'available'}
+                onPress={() => (appleLinked ? confirmUnlinkApple() : void linkApple())}
+                className="mt-2 flex-row items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: colors.chip,
+                  borderRadius: radius.md,
+                  opacity: auth.appleStatus === 'available' ? 1 : 0.6,
+                }}
+              >
+                <Text className="text-[14px] font-medium" style={{ color: colors.ink }}>
+                  Apple ID
+                </Text>
+                <Text className="text-[12px]" style={{ color: colors.faint }}>
+                  {auth.appleStatus !== 'available'
+                    ? 'Coming Soon'
+                    : appleLinked
+                      ? unlinkingApple
+                        ? 'Removing…'
+                        : 'Remove'
+                      : linkingApple
+                        ? 'Opening…'
+                        : 'Link'}
+                </Text>
+              </Pressable>
+              {identityNote ? (
+                <Text className="mt-3 text-[12px] leading-5" style={{ color: colors.muted }}>
+                  {identityNote}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
           {error ? <Text style={{ ...type.meta, color: colors.danger }}>{error}</Text> : null}
         </ScrollView>
         <FormActionBar

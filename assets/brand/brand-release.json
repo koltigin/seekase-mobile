@@ -1,8 +1,8 @@
 {
   "brand": "Seekase",
-  "version": "1.1.0",
-  "approvedAt": "2026-10-01",
-  "status": "badge-redesign-integrated-device-recheck-pending",
+  "version": "1.1.1",
+  "approvedAt": "2026-10-05",
+  "status": "launcher-safe-area-update-device-recheck-pending",
   "palette": {
     "archiveBlack": "#161310",
     "warmIvory": "#F3EEE4",
@@ -25,6 +25,10 @@
     "seekase-wordmark-positive.svg": "cc421b9ac0be6946acd840a34c6da8d735f31fcafa7eec5711c5e2516ad6fdbe",
     "seekase-lockup-dark.svg": "ffa804859f5e76a6e458925b04a82852e78a2011c50b64e27ab4c0745ec769e7",
     "seekase-lockup-light.svg": "da70fcff5eac8d9d13cc03d4544ea25617f1cb02c3492a38825e529afcf87ecc",
+    "seekase-app-foreground.svg": "8de2504065cedf779e17cb15f0f7845c2faf6cd524b99f6746e8991d1655bbd4",
+    "seekase-app-monochrome.svg": "24951e2cd181fe059a2f7b6eb605e71d2bcbb7a725a5aa4a6a1f8a0da59a337f",
+    "exports/android/adaptive-foreground.png": "02e0b03e5a9a6fe77e6d114c83d1e516c956bf3a4c09672d406ec65dd826445a",
+    "exports/android/adaptive-monochrome.png": "0844b371ffa026fb370229fdb11b0149f6e298c9906e1433deb680539a25ecb5",
     "category-icon-paths.json": "e66f012a2d68153d3f6f9dc4b4324bc1e67c8ed6fa3ae915ad4f13d1d80cd161",
     "badge-icon-paths.json": "62a66b8e2c23e391034e7585c8dcfcd171fb9b6da39128b3dfcdec334e058362",
     "exports/solana-dapp-store/icon-512.png": "8eaf5c88821ed121cef768e27f7eeea2ed4a020b204f84b1eafa9b07ebd4884d",

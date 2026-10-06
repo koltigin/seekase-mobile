@@ -127,7 +127,12 @@ function AccountCatalog({ ownerId }: { ownerId: string }) {
         <BackButton onPress={back} disabled={busy} />
         <Text style={{ ...type.eyebrow, textTransform: 'none', color: colors.faint }}>ACCOUNT COLLECTIONS</Text>
       </View>
-      <ScrollView contentContainerStyle={{ gap: 18, paddingBottom: 100 }}>
+      <ScrollView
+        contentContainerStyle={{ gap: 18, paddingBottom: 132 }}
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={{ ...type.title, color: colors.ink }}>
           {item?.title ??
             (collection?.title === 'My objects' && collection.categoryId === 'other'
@@ -136,8 +141,8 @@ function AccountCatalog({ ownerId }: { ownerId: string }) {
             'Your account collections'}
         </Text>
         <Text style={{ ...type.meta, color: colors.muted }}>
-          These collections are saved online. A collection appears publicly after it contains at least one
-          photographed object. Your device collections stay on this device.
+          These collections are saved online. A collection appears publicly after it contains at least one photographed
+          object. Your device collections stay on this device.
         </Text>
         <CloudButton
           label={query.isFetching ? 'Refreshing…' : 'Refresh from account'}

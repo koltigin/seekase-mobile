@@ -1,3 +1,3 @@
-d15a21a13541bffad7db29757df717df027f53626206c00a5f92118df8590983  Seekase-Android-1.0.0.apk
-5f756dd35e577e8b5ff0f45db55fc5fe1ec29209ec1112fcf10506f1bdf4d624  Seekase-CLOCK-IN-Pitch-Deck.pdf
-be0b9c66a825fcf269b8b80f60533c1bba81955b63058d05a03ac4070485b70e  Seekase-Core-Demo-Raw.mp4
+71f8a9570c58627ded255e1a409e4539e219595c5a9d08f36fd97dcbb08af61f  submission/Seekase-Android-1.0.0.apk
+5f756dd35e577e8b5ff0f45db55fc5fe1ec29209ec1112fcf10506f1bdf4d624  submission/Seekase-CLOCK-IN-Pitch-Deck.pdf
+be0b9c66a825fcf269b8b80f60533c1bba81955b63058d05a03ac4070485b70e  submission/Seekase-Core-Demo-Raw.mp4

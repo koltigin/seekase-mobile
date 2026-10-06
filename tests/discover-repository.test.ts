@@ -14,7 +14,7 @@ beforeEach(() => {
   mocks.getSupabase.mockReturnValue(
     createClient<Database>('https://seekase.example.test', 'test-anon-key', {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-      global: { fetch: transport },
+      global: { fetch: transport as unknown as typeof fetch },
     }),
   )
 })
@@ -63,13 +63,23 @@ describe('public Discover repository', () => {
           { id: 'item-2', collection_id: 'collection-1', owner_id: 'owner-1', cover_path: null },
         ]),
       )
-      .mockResolvedValueOnce(response([{ collection_id: 'collection-1' }, { collection_id: 'collection-1' }]))
+      .mockResolvedValueOnce(
+        response([{ collection_id: 'collection-1', like_count: 2, comment_count: 3, view_count: 4 }]),
+      )
 
     const result = await listPublicCollections()
     expect(result).toMatchObject({
       ok: true,
       data: [
-        { title: 'Library', itemCount: 1, likeCount: 2, coverPath: 'owner/photo.jpg', owner: { handle: 'reader' } },
+        {
+          title: 'Library',
+          itemCount: 1,
+          likeCount: 2,
+          commentCount: 3,
+          viewCount: 4,
+          coverPath: 'owner/photo.jpg',
+          owner: { handle: 'reader' },
+        },
       ],
     })
     expect(JSON.stringify(result)).not.toContain('wallet')
@@ -160,7 +170,9 @@ describe('public Discover repository', () => {
       )
       .mockResolvedValueOnce(response([{ badge_id: 'seeker-genesis' }]))
       .mockResolvedValueOnce(response([{ collection_id: 'collection-1', cover_path: 'owner/photo.jpg' }]))
-      .mockResolvedValueOnce(response([{ collection_id: 'collection-1' }]))
+      .mockResolvedValueOnce(
+        response([{ collection_id: 'collection-1', like_count: 1, comment_count: 2, view_count: 3 }]),
+      )
     const result = await getPublicCollector('owner-1')
     expect(result).toMatchObject({
       ok: true,
@@ -170,7 +182,16 @@ describe('public Discover repository', () => {
         bio: 'Books and maps',
         location: 'Istanbul',
         badgeIds: ['seeker-genesis'],
-        collections: [{ title: 'Library', itemCount: 1, likeCount: 1, coverPath: 'owner/photo.jpg' }],
+        collections: [
+          {
+            title: 'Library',
+            itemCount: 1,
+            likeCount: 1,
+            commentCount: 2,
+            viewCount: 3,
+            coverPath: 'owner/photo.jpg',
+          },
+        ],
       },
     })
   })

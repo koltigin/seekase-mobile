@@ -21,7 +21,8 @@ export const type = {
     fontSize: 11,
     fontWeight: '600' as const,
     letterSpacing: 1.6,
-    textTransform: 'uppercase' as const,
+    // Avoid Android applying the device locale (for example Turkish İ) to English UI copy.
+    textTransform: 'none' as const,
   },
   title: {
     fontSize: 30,

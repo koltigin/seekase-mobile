@@ -65,3 +65,11 @@ eas build --platform android --profile dapp-store-apk
 Keep the final keystore under the owner's control. Losing it can prevent future updates. The dApp Store App NFT / Release NFT and publishing steps are separate and may spend Mainnet SOL only with explicit approval.
 
 Official references: [EAS build profiles](https://docs.expo.dev/build/eas-json/), [EAS environment variables](https://docs.expo.dev/eas/environment-variables/), and [Solana dApp Store submission](https://docs.solanamobile.com/dapp-store/publishing-cli/submit).
+
+## Current submission candidate
+
+- Build: local EAS production build completed on 5 October 2026
+- Package/version: `com.seekase.app` / `1.0.0` (`versionCode` 1)
+- APK SHA-256: `71f8a9570c58627ded255e1a409e4539e219595c5a9d08f36fd97dcbb08af61f`
+- Signature: Android v2, production certificate SHA-256 `5b3d819699fd42c3131dda187faf32b695dda8c378995e00bc979de784fc2d1c`
+- Verification: package identity, Android v2 signature and certificate verified. Installed successfully as a data-preserving update on Seeker `SM02E4060329747` and started without Metro. The final Discover Brand Kit lockup and Settings policy/support/social links were visually accepted.

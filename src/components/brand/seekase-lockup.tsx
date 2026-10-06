@@ -8,14 +8,20 @@ export function SeekaseLockup({ width = 148 }: { width?: number }) {
 
   return (
     <Svg accessibilityLabel="Seekase" width={width} height={height} viewBox="0 0 740 180">
-      <G transform="translate(24 36)" fill="none" stroke={colors.ink} strokeLinecap="round" strokeLinejoin="round">
+      <G
+        transform="translate(8 21) scale(1.25)"
+        fill="none"
+        stroke={colors.ink}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <Path
           d="M82 27H43C32 27 27 31 27 38C27 45 34 48 43 52L69 64C77 68 81 72 81 78C81 85 75 88 66 88H28"
           strokeWidth={13}
         />
         <Path d="M45 39V75M47 56L66 39M47 56L68 75" strokeWidth={9} />
       </G>
-      <Rect x={93} y={103} width={7} height={7} rx={1.4} fill={colors.like} />
+      <Rect x={94.25} y={104.75} width={8.75} height={8.75} rx={1.75} fill={colors.like} />
       <G
         transform="translate(138 10)"
         fill="none"

@@ -62,7 +62,7 @@ export function CloudComments({ target, userId }: { target: CommentTarget; userI
 
   return (
     <View style={{ gap: 14, paddingTop: 10 }}>
-      <Text style={{ ...type.title, fontSize: 24, color: colors.ink }}>Comments</Text>
+      <Text style={{ ...type.title, fontSize: 24, color: colors.ink }}>Comments ({comments.length})</Text>
       {loading ? <Text style={{ ...type.meta, color: colors.muted }}>Loading comments…</Text> : null}
       {!loading && comments.length === 0 ? (
         <Text style={{ ...type.meta, color: colors.muted }}>No comments yet. Start the conversation.</Text>

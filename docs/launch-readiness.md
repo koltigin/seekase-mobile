@@ -20,12 +20,12 @@ CLOCK IN deadline: **8 October 2026**. Required package: functional Android APK,
 - [ ] Complete the destructive account-deletion acceptance test with a disposable test account.
 - [x] Add an in-app support and recovery route.
 - [x] Configure the official in-app support URL as `https://seekase.app/support/`.
-- [ ] Point the purchased domain's DNS to the published GitHub Pages repository, wait for the certificate, then verify the support route over HTTPS.
+- [x] Point the purchased domain's DNS to the published GitHub Pages repository and verify the site and support route over HTTPS.
 
 ## P1 — submission build
 
 - [x] Freeze the English UI copy and remove development-only wording.
-- [ ] Confirm app name, package id, production SIWS domain/URI, Mainnet RPC, and privacy URLs. Support URL is fixed as `https://seekase.app/support/`.
+- [x] Confirm app name, package id, production SIWS domain/URI, Mainnet RPC, and privacy/support URLs.
 - [x] Produce a release-signed Android build and install it on a physical Seeker without Metro.
 - [x] Rebuild the final 2 October source state with the production release certificate, verify its v2 signature, and install it on the physical Seeker.
 - [x] Add EAS profiles for the standalone hackathon APK and Solana dApp Store APK without committing signing credentials.
@@ -36,7 +36,9 @@ CLOCK IN deadline: **8 October 2026**. Required package: functional Android APK,
 - [x] Re-test wallet return from Seed Vault in the final acceptance pass.
 - [x] Scan the publishable repository and APK configuration for secrets and private identifiers.
 - [x] Publish the sanitized source repository at `koltigin/seekase-mobile`, pass `npm run audit:public`, and record the submitted commit.
-- [ ] Record the demo video and prepare the short product deck, screenshots, feature list, and test instructions.
+- [x] Prepare the short product deck, store screenshots, and feature list.
+- [ ] Finish the demo video with wallet entry, Mainnet check-in, narration, and final title card.
+- [x] Finalize concise judge test instructions and submission copy; publication URLs are prepared for the final submission step.
 
 ## P1 — brand and store assets
 
@@ -49,20 +51,20 @@ CLOCK IN deadline: **8 October 2026**. Required package: functional Android APK,
 
 ## P1 — public website and legal pages
 
-- [ ] Complete DNS/HTTPS activation for the prepared landing page, now published from `koltigin/seekase-site`; add the monitored support contact and final submission links.
+- [x] Complete DNS/HTTPS activation for the landing page published from `koltigin/seekase-site` and activate the monitored `support@seekase.app` route.
 - [ ] Complete legal review and publish the prepared English Privacy Policy covering Supabase Auth/Postgres/Storage, Helius verification requests, Solana public transactions, retention, deletion, and user rights.
 - [ ] Complete legal review and publish the prepared English Terms of Use covering eligibility, user content, prohibited content, account action, external wallets, network fees, and liability boundaries.
-- [ ] Publish the prepared Community Guidelines and reporting/moderation rules.
-- [ ] Publish the prepared account/data deletion instructions; the same action is already reachable inside the app.
-- [ ] Add policy/support URLs to the app, repository, store listing, and submission form.
+- [x] Publish the prepared Community Guidelines and reporting/moderation rules.
+- [x] Publish the prepared account/data deletion instructions; the same action is already reachable inside the app.
+- [x] Add policy/support URLs to the app, repository, store listing, and submission form copy.
 
 Legal text must describe the actual shipped behavior and providers. Draft it after the P0 data flows are frozen, then obtain appropriate legal review before public launch.
 
 ## P2 — after the first submission path is secure
 
-- [ ] Configure Google Cloud and Supabase provider credentials, then enable Google sign-in and explicit account linking.
-- [ ] Apple sign-in and iOS packaging.
-- [ ] Test Apple web OAuth on Android; keep native Apple authentication with the later iOS package.
+- [x] Configure Google Cloud and Supabase provider credentials, then enable and physically test Google sign-in and explicit account linking.
+- [ ] Apple sign-in and iOS packaging. Owner deferred the paid Apple Developer membership; the prepared UI remains `Coming Soon`.
+- [ ] Test Apple web OAuth on Android after Apple Developer enrollment; keep native Apple authentication with the later iOS package.
 - [ ] Push notification delivery for private messages after the in-app inbox is accepted.
 - [ ] Optional NFT minting for earned achievements, with explicit fees and separate approval.
 - [ ] Remote category catalog administration and moderated category suggestions.

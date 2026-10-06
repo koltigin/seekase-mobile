@@ -22,6 +22,21 @@ export function unavailableResult(message = 'Backend is not configured. Continui
 
 export function normalizeAuthError(message: string): RepoError {
   const lower = message.toLowerCase()
+  if (lower.includes('manual linking') && lower.includes('disabled')) {
+    return {
+      code: 'unavailable',
+      message: 'Account linking is disabled in the authentication settings. Enable manual linking and try again.',
+    }
+  }
+  if (
+    lower.includes('identity') &&
+    (lower.includes('already linked') || lower.includes('already exists') || lower.includes('another user'))
+  ) {
+    return {
+      code: 'conflict',
+      message: 'That Google account already belongs to another Seekase account. Use a different Google account or delete the empty test account first.',
+    }
+  }
   if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
     return { code: 'validation', message: 'Email or password is incorrect.' }
   }

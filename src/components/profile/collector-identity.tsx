@@ -26,8 +26,8 @@ export function CollectorIdentity() {
     >
       <View className="flex-row items-center justify-between" style={{ gap: 12 }}>
         <View className="flex-1">
-          <Text className="text-[11px] font-semibold uppercase tracking-[1.2px]" style={{ color: colors.faint }}>
-            Collector Identity
+          <Text className="text-[11px] font-semibold tracking-[1.2px]" style={{ color: colors.faint }}>
+            COLLECTOR IDENTITY
           </Text>
           <Text className="mt-1 text-[13px]" style={{ color: colors.muted }}>
             {summary} · Address stays private

@@ -16,6 +16,8 @@ const collections: PublicCollectionSummary[] = [
     owner,
     itemCount: 2,
     likeCount: 0,
+    commentCount: 0,
+    viewCount: 0,
     createdAt: '2026-09-23T00:00:00.000Z',
   },
   {
@@ -26,6 +28,8 @@ const collections: PublicCollectionSummary[] = [
     owner,
     itemCount: 1,
     likeCount: 0,
+    commentCount: 0,
+    viewCount: 0,
     createdAt: '2026-09-23T00:00:00.000Z',
   },
   {
@@ -36,6 +40,8 @@ const collections: PublicCollectionSummary[] = [
     owner,
     itemCount: 3,
     likeCount: 0,
+    commentCount: 0,
+    viewCount: 0,
     createdAt: '2026-09-23T00:00:00.000Z',
   },
 ]

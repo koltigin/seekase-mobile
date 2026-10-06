@@ -37,8 +37,8 @@ export function CollectionCard({ collection, featured = false }: { collection: C
             borderRadius: radius.pill,
           }}
         >
-          <Text className="text-[11px] font-semibold uppercase tracking-[1.1px] text-white" numberOfLines={1}>
-            {categoryLabel(collection.categoryId)}
+          <Text className="text-[11px] font-semibold tracking-[1.1px] text-white" numberOfLines={1}>
+            {categoryLabel(collection.categoryId).toLocaleUpperCase('en-US')}
           </Text>
         </View>
       </View>

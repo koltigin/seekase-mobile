@@ -26,8 +26,10 @@ export default function ProfileScreen() {
   const router = useRouter()
   const { colors } = useTheme()
   const { profile, previewGenesisBadge } = useAppState()
-  const { publicSeekerBadge, publicWalletBadge } = useWalletIdentity()
-  const { user } = useAuth()
+  const wallet = useWalletIdentity()
+  const { publicSeekerBadge, publicWalletBadge } = wallet
+  const auth = useAuth()
+  const { user } = auth
   const [catalogSummary, setCatalogSummary] = useState<ProfileCatalogSummary>({ collections: 0, items: 0 })
   const socialQuery = useQuery({
     queryKey: ['collector-social-counts', user?.id],
@@ -69,7 +71,7 @@ export default function ProfileScreen() {
     <Screen padded={false}>
       <View className="flex-row items-center justify-between px-5 pb-4 pt-1">
         <View>
-          <Text style={{ ...type.eyebrow, color: colors.faint }}>Collector profile</Text>
+          <Text style={{ ...type.eyebrow, color: colors.faint }}>COLLECTOR PROFILE</Text>
           <Text className="mt-1 text-base font-semibold" style={{ color: colors.ink }}>
             {handle}
           </Text>
@@ -85,11 +87,7 @@ export default function ProfileScreen() {
         contentContainerStyle={{ paddingHorizontal: space.screen, paddingBottom: space.tabPad }}
       >
         <View className="flex-row items-center" style={{ gap: 18 }}>
-          <ProfileAvatar
-            path={profile.avatarPath}
-            initials={profile.avatarInitials}
-            color={profile.avatarColor}
-          />
+          <ProfileAvatar path={profile.avatarPath} initials={profile.avatarInitials} color={profile.avatarColor} />
           <View className="flex-1 flex-row flex-wrap" style={{ rowGap: 16 }}>
             <ProfileMetric label="Collections" value={catalogSummary.collections} />
             <ProfileMetric label="Objects" value={catalogSummary.items} />
@@ -157,6 +155,19 @@ export default function ProfileScreen() {
             Edit profile
           </Text>
         </Pressable>
+
+        {user ? (
+          <Pressable
+            accessibilityRole="button"
+            className="mt-5 items-center py-3"
+            style={{ backgroundColor: colors.surface, borderRadius: radius.pill }}
+            onPress={() => router.push('/account')}
+          >
+            <Text className="text-[13px] font-medium" style={{ color: colors.ink }}>
+              Manage account
+            </Text>
+          </Pressable>
+        ) : null}
 
         <CollectorIdentity />
 

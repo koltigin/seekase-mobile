@@ -37,10 +37,10 @@ export function BadgeChip({
     >
       <BadgeIcon id={badge.id} family={badge.family} size={compact ? 19 : 24} />
       <Text
-        className="font-semibold uppercase"
+        className="font-semibold"
         style={{ color: colors.ink, fontSize: compact ? 10 : 11, letterSpacing: compact ? 0.75 : 1 }}
       >
-        {label}
+        {label.toLocaleUpperCase('en-US')}
       </Text>
     </View>
   )

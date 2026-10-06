@@ -56,8 +56,8 @@ export function CloudCollectionCard({
             backgroundColor: colors.overlay,
           }}
         >
-          <Text className="text-[11px] font-semibold uppercase tracking-[1.1px] text-white" numberOfLines={1}>
-            {categoryLabel(collection.categoryId)}
+          <Text className="text-[11px] font-semibold tracking-[1.1px] text-white" numberOfLines={1}>
+            {categoryLabel(collection.categoryId).toLocaleUpperCase('en-US')}
           </Text>
         </View>
       </View>
@@ -86,6 +86,9 @@ export function CloudCollectionCard({
             </Text>
             <Text className="text-[12px]" style={{ color: colors.muted }} numberOfLines={1}>
               @{collection.owner.handle} · {collection.itemCount} {collection.itemCount === 1 ? 'object' : 'objects'}
+            </Text>
+            <Text className="text-[11px]" style={{ color: colors.faint }} numberOfLines={1}>
+              {collection.commentCount} comments · {collection.viewCount} viewers
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

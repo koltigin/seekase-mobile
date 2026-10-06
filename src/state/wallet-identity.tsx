@@ -1,7 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useMobileWallet } from '@wallet-ui/react-native-kit'
-import type { SignInPayload } from '@solana-mobile/mobile-wallet-adapter-protocol'
+import { convertSignInResult, type Account, type WalletAuthorization } from '@wallet-ui/react-native-kit'
+import type { AuthorizationResult, SignInPayload } from '@solana-mobile/mobile-wallet-adapter-protocol'
 import { base64ToUint8Array } from '@solana-mobile/mobile-wallet-adapter-protocol/encoding'
+import { address, getBase58Decoder } from '@solana/kit'
 import { derivePublicSeekerBadge } from '../data/seeker-badge'
 import { walletVerifiedBadge, type CollectorBadge } from '../data/badges'
 import { getWalletVerificationStatus } from '../repositories/wallet-auth-repository'
@@ -21,6 +23,9 @@ export type WalletVerificationStatus = 'loading' | 'verified' | 'unverified' | '
 
 function walletConnectionError(error: unknown) {
   const message = formatError(error)
+  if (message.toLowerCase().includes('authorization request failed')) {
+    return 'Wallet authorization expired. Tap Continue with Solana wallet again to reconnect.'
+  }
   return message.toLowerCase().includes('cancellationexception') || message.toLowerCase().includes('cancelled')
     ? 'Wallet connection was cancelled.'
     : message
@@ -47,6 +52,11 @@ type WalletIdentityValue = {
   publicSeekerBadge: CollectorBadge | null
   lastError: string | null
   connectWallet: () => Promise<string | null>
+  connectAndSignInWallet: (getPayload: (address: string) => Promise<SignInPayload | null>) => Promise<{
+    address: string
+    signedMessage: Uint8Array
+    signature: Uint8Array
+  } | null>
   signInWallet: (payload: SignInPayload) => Promise<{
     address: string
     signedMessage: Uint8Array
@@ -54,6 +64,21 @@ type WalletIdentityValue = {
   } | null>
   disconnectWallet: () => Promise<void>
   checkSeekerEligibility: () => Promise<void>
+}
+
+function walletAuthorization(result: AuthorizationResult): WalletAuthorization {
+  const accounts: Account[] = result.accounts.map((item) => {
+    const base58Address = getBase58Decoder().decode(base64ToUint8Array(item.address))
+    return {
+      address: address(base58Address),
+      addressBase64: item.address,
+      icon: item.icon,
+      label: item.label ?? `${base58Address.slice(0, 8)}..${base58Address.slice(-8)}`,
+    }
+  })
+  const selectedAccount = accounts[0]
+  if (!selectedAccount) throw new Error('The wallet did not return an account.')
+  return { accounts, authToken: result.auth_token, selectedAccount }
 }
 
 const WalletIdentityContext = createContext<WalletIdentityValue | null>(null)
@@ -73,7 +98,7 @@ function mapCluster(chain: string | undefined): SeekerVerificationCluster {
 
 export function WalletIdentityProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, user } = useAuth()
-  const { account, connect, disconnect, signIn, chain } = useMobileWallet()
+  const { account, connect, connectAnd, disconnect, signIn, chain, identity, store } = useMobileWallet()
   const { chain: networkChain } = useNetwork()
   const [connectionStatusState, setConnectionStatus] = useState<WalletConnectionStatus>('disconnected')
   const [seekerVerification, setSeekerVerification] = useState<SeekerVerificationStatus>('unknown')
@@ -81,6 +106,7 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
   const [verificationReason, setVerificationReason] = useState<string | undefined>()
   const [verificationCheckedAt, setVerificationCheckedAt] = useState<string | undefined>()
   const [lastError, setLastError] = useState<string | null>(null)
+  const automaticSeekerCheckUserId = useRef<string | null>(null)
   const [walletVerificationResult, setWalletVerificationResult] = useState<{
     userId: string
     status: WalletVerificationStatus
@@ -135,7 +161,10 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, user])
 
   useEffect(() => {
-    if (!isAuthenticated || !user) return
+    if (!isAuthenticated || !user) {
+      automaticSeekerCheckUserId.current = null
+      return
+    }
     let cancelled = false
     void loadSeekerVerificationStatus().then((result) => {
       if (cancelled) return
@@ -162,11 +191,14 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
       setConnectionStatus('connected')
       return String(connected.address)
     } catch (error) {
+      // A cancelled or failed hand-off can leave an unusable authorization in
+      // storage. Always make the next explicit attempt start cleanly.
+      await disconnect()
       setConnectionStatus('error')
       setLastError(walletConnectionError(error))
       return null
     }
-  }, [account, connect])
+  }, [account, connect, disconnect])
 
   const signInWallet = useCallback(
     async (payload: SignInPayload) => {
@@ -182,12 +214,65 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
           signature,
         }
       } catch (error) {
+        // A failed signing sheet must not keep a cached authorization that can
+        // reopen as an empty Solana Wallet sheet on the next attempt.
+        await disconnect()
         setConnectionStatus('error')
         setLastError(walletConnectionError(error))
         return null
       }
     },
-    [signIn],
+    [disconnect, signIn],
+  )
+
+  const connectAndSignInWallet = useCallback(
+    async (getPayload: (address: string) => Promise<SignInPayload | null>) => {
+      setConnectionStatus('connecting')
+      setLastError(null)
+      let proof: {
+        address: string
+        signedMessage: Uint8Array
+        signature: Uint8Array
+      } | null = null
+      try {
+        await connectAnd(async (wallet) => {
+          const connectedResult = await wallet.authorize({ chain, identity })
+          const connected = walletAuthorization(connectedResult)
+          await store.persist(connected)
+
+          const payload = await getPayload(String(connected.selectedAccount.address))
+          if (!payload) return connected.selectedAccount
+
+          const signedResult = await wallet.authorize({
+            auth_token: connected.authToken,
+            chain,
+            identity,
+            sign_in_payload: payload,
+          })
+          const signedAuthorization = walletAuthorization(signedResult)
+          await store.persist(signedAuthorization)
+          if (!signedResult.sign_in_result) throw new Error('The wallet did not return a sign-in signature.')
+          const signed = convertSignInResult({
+            account: signedAuthorization.selectedAccount,
+            signInResult: signedResult.sign_in_result,
+          })
+          proof = {
+            address: String(signed.account.address),
+            signature: decodeWalletSignInBytes(signed.signature, signed.signature.length),
+            signedMessage: decodeWalletSignInBytes(signed.signedMessage, signed.signature.length),
+          }
+          return signedAuthorization.selectedAccount
+        })
+        setConnectionStatus(proof ? 'connected' : 'disconnected')
+        return proof
+      } catch (error) {
+        await disconnect()
+        setConnectionStatus('error')
+        setLastError(walletConnectionError(error))
+        return null
+      }
+    },
+    [chain, connectAnd, disconnect, identity, store],
   )
 
   const disconnectWallet = useCallback(async () => {
@@ -226,6 +311,34 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
     }
   }, [account, chain, networkChain, user])
 
+  useEffect(() => {
+    if (
+      !isAuthenticated ||
+      !user ||
+      !account ||
+      walletVerification !== 'verified' ||
+      seekerVerificationUserId !== user.id ||
+      (seekerVerification !== 'unknown' && seekerVerification !== 'not_verified') ||
+      automaticSeekerCheckUserId.current === user.id
+    ) {
+      return
+    }
+
+    // A wallet-first sign-in has already proved control of the privately linked
+    // wallet. Refresh the genuine Mainnet SGT result once per app session so a
+    // previously cached negative result cannot hide a newly detected token.
+    automaticSeekerCheckUserId.current = user.id
+    void checkSeekerEligibility()
+  }, [
+    account,
+    checkSeekerEligibility,
+    isAuthenticated,
+    seekerVerification,
+    seekerVerificationUserId,
+    user,
+    walletVerification,
+  ])
+
   const value = useMemo<WalletIdentityValue>(
     () => ({
       connectionStatus,
@@ -241,6 +354,7 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
       publicSeekerBadge: derivePublicSeekerBadge(visibleVerification),
       lastError,
       connectWallet,
+      connectAndSignInWallet,
       signInWallet,
       disconnectWallet,
       checkSeekerEligibility,
@@ -255,6 +369,7 @@ export function WalletIdentityProvider({ children }: { children: ReactNode }) {
       visibleVerificationCheckedAt,
       lastError,
       connectWallet,
+      connectAndSignInWallet,
       signInWallet,
       disconnectWallet,
       checkSeekerEligibility,

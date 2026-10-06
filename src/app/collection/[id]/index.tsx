@@ -108,7 +108,13 @@ export default function CollectionDetailScreen() {
 
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: space.tabPad }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: space.tabPad + 32 }}
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={{ height: 280 }}>
           <Image source={collection.cover} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
           <View className="absolute inset-0" style={{ backgroundColor: 'rgba(12,10,8,0.22)' }} />

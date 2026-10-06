@@ -18,6 +18,10 @@ export function entryRedirect(
   if (!state.ready) return null
   if (!state.onboardingComplete) return root === 'onboarding' ? null : '/onboarding'
 
+  // OAuth returns through a real Expo Router route. Keep it mounted long enough
+  // for WebBrowser.openAuthSessionAsync to receive and exchange the PKCE code.
+  if (root === 'auth') return null
+
   // Account is also the settings/sign-out screen.
   if (root === 'account') return null
   // A guest may explicitly revisit sign-in options, including after account sign-out.

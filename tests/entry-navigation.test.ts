@@ -44,6 +44,11 @@ describe('entry and account navigation', () => {
     expect(entryRedirect(signedOut, '(tabs)')).toBe('/welcome')
   })
 
+  it('does not redirect the OAuth callback before the browser session consumes it', () => {
+    expect(entryRedirect(returningUser, 'auth')).toBeNull()
+    expect(entryRedirect({ ...returningUser, isAuthenticated: false }, 'auth')).toBeNull()
+  })
+
   it('requires an account even when a historical local-mode flag exists', () => {
     const local = { ...returningUser, isAuthenticated: false, demoSignedIn: true, authMethod: 'demo' }
     expect(entryRedirect(local, '(tabs)')).toBe('/welcome')

@@ -47,7 +47,13 @@ export default function PublicObjectScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ gap: 18, paddingBottom: 90 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{ gap: 18, paddingBottom: 122 }}
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <CloudButton label="Back to collection" secondary onPress={() => router.back()} />
         {query.isPending ? <Text style={{ ...type.body, color: colors.muted }}>Loading object…</Text> : null}
         {query.isError ? (

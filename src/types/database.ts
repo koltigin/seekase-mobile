@@ -180,6 +180,12 @@ export type Database = {
         Update: { user_id?: string; collection_id?: string; created_at?: string }
         Relationships: []
       }
+      collection_views: {
+        Row: { collection_id: string; viewer_id: string; first_viewed_at: string; last_viewed_at: string }
+        Insert: { collection_id: string; viewer_id: string; first_viewed_at?: string; last_viewed_at?: string }
+        Update: { last_viewed_at?: string }
+        Relationships: []
+      }
       comments: {
         Row: {
           id: string
@@ -457,6 +463,19 @@ export type Database = {
       open_direct_conversation: {
         Args: { peer_user_id: string }
         Returns: string
+      }
+      record_collection_view: {
+        Args: { target_collection_id: string }
+        Returns: undefined
+      }
+      collection_engagement_counts: {
+        Args: { target_collection_ids: string[] }
+        Returns: {
+          collection_id: string
+          like_count: number
+          comment_count: number
+          view_count: number
+        }[]
       }
     }
     Enums: Record<string, never>

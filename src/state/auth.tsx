@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
+import * as WebBrowser from 'expo-web-browser'
 import { getBackendAvailability, getSupabase } from '../lib/supabase'
+import { readOAuthCallback } from '../lib/oauth-callback'
 import { deleteAccountPermanently, signOutAccount } from '../repositories/auth-repository'
 import {
   ensureProfile,
@@ -13,7 +15,9 @@ import { useAppState } from './app-state'
 
 export type AuthStatus = 'loading' | 'guest' | 'authenticated' | 'backend_unavailable' | 'auth_error'
 
-export type OAuthProviderStatus = 'configuration_required'
+export type OAuthProviderStatus = 'available' | 'configuration_required'
+
+type OAuthSignInResult = { ok: true } | { ok: false; cancelled?: boolean; error?: RepoError }
 
 type AuthValue = {
   status: AuthStatus
@@ -36,12 +40,22 @@ type AuthValue = {
     password: string,
     opts?: { displayName?: string; handle?: string },
   ) => Promise<{ ok: true; needsConfirmation?: boolean } | { ok: false; error: RepoError }>
+  signInWithGoogle: () => Promise<OAuthSignInResult>
+  signInWithApple: () => Promise<OAuthSignInResult>
+  linkGoogleIdentity: () => Promise<OAuthSignInResult>
+  linkAppleIdentity: () => Promise<OAuthSignInResult>
+  unlinkGoogleIdentity: () => Promise<OAuthSignInResult>
+  unlinkAppleIdentity: () => Promise<OAuthSignInResult>
   signOut: () => Promise<boolean>
   deleteAccount: () => Promise<boolean>
   clearAuthError: () => void
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
+const OAUTH_REDIRECT_URL = 'seekase://auth/callback'
+const appleAuthEnabled = process.env.EXPO_PUBLIC_APPLE_AUTH_ENABLED === 'true'
+
+WebBrowser.maybeCompleteAuthSession()
 
 function mapStatus(args: {
   backend: 'configured' | 'unavailable'
@@ -111,7 +125,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userId: user.id,
           email: user.email,
           displayName:
-            typeof user.user_metadata?.display_name === 'string' ? user.user_metadata.display_name : undefined,
+            typeof user.user_metadata?.display_name === 'string'
+              ? user.user_metadata.display_name
+              : typeof user.user_metadata?.full_name === 'string'
+                ? user.user_metadata.full_name
+                : typeof user.user_metadata?.name === 'string'
+                  ? user.user_metadata.name
+                  : undefined,
           handle: typeof user.user_metadata?.handle === 'string' ? user.user_metadata.handle : undefined,
         })
         if (cancelled) return
@@ -201,6 +221,256 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [setLastError, setSession],
   )
 
+  const signInWithGoogle = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    if (!supabase) {
+      const error = { code: 'unavailable' as const, message: 'Account sign-in is unavailable in this build.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    if (session?.user) {
+      const error = {
+        code: 'conflict' as const,
+        message: 'Sign out before using a different sign-in method. Account linking is managed separately.',
+      }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    setLastError(null)
+    const started = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: OAUTH_REDIRECT_URL,
+        skipBrowserRedirect: true,
+      },
+    })
+    if (started.error || !started.data.url) {
+      const error = normalizeAuthError(started.error?.message ?? 'Could not start Google sign-in.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const browserResult = await WebBrowser.openAuthSessionAsync(started.data.url, OAUTH_REDIRECT_URL)
+    if (browserResult.type !== 'success') {
+      return { ok: false, cancelled: true }
+    }
+    const callback = readOAuthCallback(browserResult.url)
+    if (!callback.ok) {
+      const error = normalizeAuthError(callback.error)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const exchanged = await supabase.auth.exchangeCodeForSession(callback.code)
+    if (exchanged.error || !exchanged.data.session) {
+      const error = normalizeAuthError(exchanged.error?.message ?? 'Could not complete Google sign-in.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    setSession(exchanged.data.session)
+    return { ok: true }
+  }, [session?.user, setLastError, setSession])
+
+  const signInWithApple = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    if (!supabase || !appleAuthEnabled) {
+      const error = { code: 'unavailable' as const, message: 'Apple ID sign-in is not configured yet.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    if (session?.user) {
+      const error = {
+        code: 'conflict' as const,
+        message: 'Sign out before using a different sign-in method. Account linking is managed separately.',
+      }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    setLastError(null)
+    const started = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: OAUTH_REDIRECT_URL,
+        skipBrowserRedirect: true,
+      },
+    })
+    if (started.error || !started.data.url) {
+      const error = normalizeAuthError(started.error?.message ?? 'Could not start Apple ID sign-in.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const browserResult = await WebBrowser.openAuthSessionAsync(started.data.url, OAUTH_REDIRECT_URL)
+    if (browserResult.type !== 'success') return { ok: false, cancelled: true }
+    const callback = readOAuthCallback(browserResult.url)
+    if (!callback.ok) {
+      const error = normalizeAuthError(callback.error)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const exchanged = await supabase.auth.exchangeCodeForSession(callback.code)
+    if (exchanged.error || !exchanged.data.session) {
+      const error = normalizeAuthError(exchanged.error?.message ?? 'Could not complete Apple ID sign-in.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    setSession(exchanged.data.session)
+    return { ok: true }
+  }, [session?.user, setLastError, setSession])
+
+  const linkGoogleIdentity = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    if (!supabase || !session?.user) {
+      const error = { code: 'unauthenticated' as const, message: 'Sign in to your Seekase account first.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    if (session.user.identities?.some((identity) => identity.provider === 'google')) {
+      return { ok: true }
+    }
+
+    setLastError(null)
+    const started = await supabase.auth.linkIdentity({
+      provider: 'google',
+      options: {
+        redirectTo: OAUTH_REDIRECT_URL,
+        skipBrowserRedirect: true,
+        queryParams: { prompt: 'select_account' },
+      },
+    })
+    if (started.error || !started.data.url) {
+      const error = normalizeAuthError(started.error?.message ?? 'Could not start Google account linking.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const browserResult = await WebBrowser.openAuthSessionAsync(started.data.url, OAUTH_REDIRECT_URL)
+    if (browserResult.type !== 'success') {
+      return { ok: false, cancelled: true }
+    }
+    const callback = readOAuthCallback(browserResult.url)
+    if (!callback.ok) {
+      const error = normalizeAuthError(callback.error)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const exchanged = await supabase.auth.exchangeCodeForSession(callback.code)
+    if (exchanged.error || !exchanged.data.session) {
+      const error = normalizeAuthError(exchanged.error?.message ?? 'Could not link the Google account.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    setSession(exchanged.data.session)
+    return { ok: true }
+  }, [session, setLastError, setSession])
+
+  const linkAppleIdentity = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    if (!supabase || !session?.user) {
+      const error = { code: 'unauthenticated' as const, message: 'Sign in to your Seekase account first.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    if (!appleAuthEnabled) {
+      const error = { code: 'unavailable' as const, message: 'Apple ID linking is not configured yet.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    if (session.user.identities?.some((identity) => identity.provider === 'apple')) return { ok: true }
+
+    setLastError(null)
+    const started = await supabase.auth.linkIdentity({
+      provider: 'apple',
+      options: {
+        redirectTo: OAUTH_REDIRECT_URL,
+        skipBrowserRedirect: true,
+      },
+    })
+    if (started.error || !started.data.url) {
+      const error = normalizeAuthError(started.error?.message ?? 'Could not start Apple ID account linking.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const browserResult = await WebBrowser.openAuthSessionAsync(started.data.url, OAUTH_REDIRECT_URL)
+    if (browserResult.type !== 'success') return { ok: false, cancelled: true }
+    const callback = readOAuthCallback(browserResult.url)
+    if (!callback.ok) {
+      const error = normalizeAuthError(callback.error)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    const exchanged = await supabase.auth.exchangeCodeForSession(callback.code)
+    if (exchanged.error || !exchanged.data.session) {
+      const error = normalizeAuthError(exchanged.error?.message ?? 'Could not link the Apple ID account.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    setSession(exchanged.data.session)
+    return { ok: true }
+  }, [session, setLastError, setSession])
+
+  const unlinkGoogleIdentity = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    const currentUser = session?.user
+    if (!supabase || !currentUser) {
+      const error = { code: 'unauthenticated' as const, message: 'Sign in to your Seekase account first.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    const googleIdentity = currentUser.identities?.find((identity) => identity.provider === 'google')
+    if (!googleIdentity) return { ok: true }
+    if ((currentUser.identities?.length ?? 0) < 2) {
+      const error = normalizeAuthError('Add another sign-in method before removing Google.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    setLastError(null)
+    const removed = await supabase.auth.unlinkIdentity(googleIdentity)
+    if (removed.error) {
+      const error = normalizeAuthError(removed.error.message)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    const refreshed = await supabase.auth.refreshSession()
+    if (refreshed.data.session) setSession(refreshed.data.session)
+    return { ok: true }
+  }, [session, setLastError, setSession])
+
+  const unlinkAppleIdentity = useCallback(async (): Promise<OAuthSignInResult> => {
+    const supabase = getSupabase()
+    const currentUser = session?.user
+    if (!supabase || !currentUser) {
+      const error = { code: 'unauthenticated' as const, message: 'Sign in to your Seekase account first.' }
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    const appleIdentity = currentUser.identities?.find((identity) => identity.provider === 'apple')
+    if (!appleIdentity) return { ok: true }
+    if ((currentUser.identities?.length ?? 0) < 2) {
+      const error = normalizeAuthError('Add another sign-in method before removing Apple ID.')
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+
+    setLastError(null)
+    const removed = await supabase.auth.unlinkIdentity(appleIdentity)
+    if (removed.error) {
+      const error = normalizeAuthError(removed.error.message)
+      setLastError(error.message)
+      return { ok: false, error }
+    }
+    const refreshed = await supabase.auth.refreshSession()
+    if (refreshed.data.session) setSession(refreshed.data.session)
+    return { ok: true }
+  }, [session, setLastError, setSession])
+
   const signOut = useCallback(async () => {
     setLastError(null)
     const result = await signOutAccount()
@@ -241,10 +511,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       email: session?.user?.email ?? null,
       lastError,
-      googleStatus: 'configuration_required',
-      appleStatus: 'configuration_required',
+      googleStatus: 'available',
+      appleStatus: appleAuthEnabled ? 'available' : 'configuration_required',
       signInWithEmail,
       signUpWithEmail,
+      signInWithGoogle,
+      signInWithApple,
+      linkGoogleIdentity,
+      linkAppleIdentity,
+      unlinkGoogleIdentity,
+      unlinkAppleIdentity,
       signOut,
       deleteAccount,
       clearAuthError: () => setLastError(null),
@@ -257,6 +533,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastError,
       signInWithEmail,
       signUpWithEmail,
+      signInWithGoogle,
+      signInWithApple,
+      linkGoogleIdentity,
+      linkAppleIdentity,
+      unlinkGoogleIdentity,
+      unlinkAppleIdentity,
       signOut,
       deleteAccount,
       setLastError,

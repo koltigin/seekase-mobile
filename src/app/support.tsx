@@ -6,6 +6,7 @@ import { useTheme } from '../state/app-state'
 import { radius, space, type } from '../theme/tokens'
 
 const supportUrl = process.env.EXPO_PUBLIC_SUPPORT_URL?.trim()
+const supportEmail = 'support@seekase.app'
 
 export default function SupportScreen() {
   const router = useRouter()
@@ -66,7 +67,22 @@ export default function SupportScreen() {
               </Text>
             </Pressable>
           ) : null}
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`Email ${supportEmail}`}
+            className="mt-3 items-center py-3.5"
+            style={{ borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line }}
+            onPress={() => void Linking.openURL(`mailto:${supportEmail}`)}
+          >
+            <Text className="text-sm font-medium" style={{ color: colors.ink }}>
+              {supportEmail}
+            </Text>
+          </Pressable>
         </View>
+
+        <Text className="mt-6 text-center text-[13px]" style={{ color: colors.muted }}>
+          Built with ❤️ by KolTigin on Solana.
+        </Text>
       </ScrollView>
     </Screen>
   )

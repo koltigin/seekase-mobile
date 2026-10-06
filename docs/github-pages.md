@@ -1,13 +1,13 @@
 # Seekase website and GitHub Pages
 
-The publishable static website lives in `site/`. It contains no application source, credentials, wallet data, Supabase keys or build-time dependency. The GitHub Pages workflow uploads only this directory.
+The publishable static website lives in the separate `Seekase-Site` sibling repository. It contains no application source, credentials, wallet data, Supabase keys or build-time dependency. Its own GitHub Pages workflow uploads that repository only.
 
 ## Repository choice
 
 The Seekase application repository remains private.
 
 - GitHub Pages from a private repository requires GitHub Pro, Team or Enterprise.
-- With GitHub Free, publish `site/` from a separate public repository that contains only the website files and the Pages workflow. Do not make the mobile application repository public merely to obtain free Pages hosting.
+- With GitHub Free, publish the separate website repository that contains only the website files and the Pages workflow. Do not make the mobile application repository public merely to obtain free Pages hosting.
 - A GitHub Pages website is publicly accessible even when its source repository is private and the plan supports private-repository Pages.
 
 ## Before DNS changes

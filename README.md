@@ -26,7 +26,7 @@ Google/Apple sign-in, push notifications, iOS packaging, and optional achievemen
 - **Backend:** Supabase Auth, Postgres, Row Level Security, Storage, and Edge Functions.
 - **State:** account data is stored in Supabase; explicitly device-only data uses AsyncStorage.
 - **Server functions:** `wallet-auth`, `daily-checkin`, `seeker-verification`, and `delete-account`.
-- **Website:** dependency-free static pages under `site/`, deployable with the included GitHub Pages workflow.
+- **Website:** maintained separately in the sibling `Seekase-Site` repository; the mobile repository remains private and contains no public-site deployment workflow.
 
 Security boundaries:
 
@@ -85,8 +85,7 @@ The public-release audit checks tracked files and Git history for common credent
 - CLOCK IN submission plan: [docs/hackathon-submission.md](docs/hackathon-submission.md)
 - Launch checklist: [docs/launch-readiness.md](docs/launch-readiness.md)
 - GitHub Pages and custom-domain setup: [docs/github-pages.md](docs/github-pages.md)
-
-The public review repository intentionally omits internal working notes, local QA captures, credentials, signing files, and production test data.
+- Current implementation log and remaining work: [PROJE_DURUMU.md](PROJE_DURUMU.md)
 
 The static website can be public independently of the application repository. If the submission requires a public source repository, publish a fresh sanitized copy only after `npm run audit:public` passes and all production secrets and private test data have been excluded.
 

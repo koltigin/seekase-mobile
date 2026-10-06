@@ -1,0 +1,96 @@
+{
+  "collection": "Seekase Soulbound Achievements — Collection 01",
+  "version": "2.0.0",
+  "brandSeal": "Approved Seekase S/K mark, engraved in aged bronze at the top-center frame medallion",
+  "artworkOnly": true,
+  "preview": "preview/collection-preview.png",
+  "sharedPalette": {
+    "archiveBlack": "#161310",
+    "warmIvory": "#F3EEE4",
+    "clayMarker": "#C47B6A",
+    "museumLine": "#3A342C",
+    "agedBronze": "#9A7650"
+  },
+  "badges": [
+    {
+      "slug": "first-collection",
+      "name": "First Collection",
+      "achievement": "Create the first public collection.",
+      "visualDescription": "A single newly opened display cabinet catches its first warm gallery light, marking the beginning of a personal museum.",
+      "mainColors": ["#161310", "#F3EEE4", "#9A7650", "#C47B6A"],
+      "master2048": "masters/first-collection.png",
+      "image1024": "1024/first-collection.png",
+      "icon512": "icons/first-collection.png"
+    },
+    {
+      "slug": "catalog-starter",
+      "name": "Catalog Starter",
+      "achievement": "Save 10 collection objects.",
+      "visualDescription": "Ten ordered archival cards settle into a bronze cabinet as the collector's first structured catalog.",
+      "mainColors": ["#161310", "#E6D8C3", "#A37C52", "#C47B6A"],
+      "master2048": "masters/catalog-starter.png",
+      "image1024": "1024/catalog-starter.png",
+      "icon512": "icons/catalog-starter.png"
+    },
+    {
+      "slug": "curator",
+      "name": "Curator",
+      "achievement": "Create 5 different collections.",
+      "visualDescription": "A central curator seal calmly directs five distinct exhibition compartments in one balanced museum plan.",
+      "mainColors": ["#161310", "#F3EEE4", "#98734C", "#C47B6A"],
+      "master2048": "masters/curator.png",
+      "image1024": "1024/curator.png",
+      "icon512": "icons/curator.png"
+    },
+    {
+      "slug": "dedicated-collector",
+      "name": "Dedicated Collector",
+      "achievement": "Save 50 collection objects.",
+      "visualDescription": "A richly populated cabinet of carefully spaced objects presents a mature personal museum built through dedication.",
+      "mainColors": ["#161310", "#DCCDB7", "#8F6A45", "#B36D5E"],
+      "master2048": "masters/dedicated-collector.png",
+      "image1024": "1024/dedicated-collector.png",
+      "icon512": "icons/dedicated-collector.png"
+    },
+    {
+      "slug": "specialist-collector",
+      "name": "Specialist Collector",
+      "achievement": "Demonstrate deep expertise in one category.",
+      "visualDescription": "A precision lens and narrow spotlight isolate one exceptional specimen as a quiet emblem of category expertise.",
+      "mainColors": ["#161310", "#F3EEE4", "#A47B4E", "#C47B6A"],
+      "master2048": "masters/specialist-collector.png",
+      "image1024": "1024/specialist-collector.png",
+      "icon512": "icons/specialist-collector.png"
+    },
+    {
+      "slug": "streak-7",
+      "name": "7-Day Streak",
+      "achievement": "Complete 7 consecutive verified Solana check-ins.",
+      "visualDescription": "A single restrained continuity ring closes around a softly lit core, introducing the streak progression.",
+      "mainColors": ["#161310", "#D6C6AF", "#9B744A", "#C47B6A"],
+      "master2048": "masters/streak-7.png",
+      "image1024": "1024/streak-7.png",
+      "icon512": "icons/streak-7.png"
+    },
+    {
+      "slug": "streak-14",
+      "name": "14-Day Streak",
+      "achievement": "Complete 14 consecutive verified Solana check-ins.",
+      "visualDescription": "Two interlocked continuity rings form a more substantial orbital museum seal for sustained return.",
+      "mainColors": ["#161310", "#E0D2BE", "#A37B4F", "#C47B6A"],
+      "master2048": "masters/streak-14.png",
+      "image1024": "1024/streak-14.png",
+      "icon512": "icons/streak-14.png"
+    },
+    {
+      "slug": "streak-30",
+      "name": "30-Day Streak",
+      "achievement": "Complete 30 consecutive verified Solana check-ins.",
+      "visualDescription": "Nested ceremonial rings and a luminous core create the collection's most prestigious continuity medallion.",
+      "mainColors": ["#161310", "#EFE4D2", "#B18A58", "#C47B6A"],
+      "master2048": "masters/streak-30.png",
+      "image1024": "1024/streak-30.png",
+      "icon512": "icons/streak-30.png"
+    }
+  ]
+}

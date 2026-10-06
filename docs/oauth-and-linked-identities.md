@@ -16,15 +16,20 @@ These are authentication methods for the same account. They do not create separa
 - Email/password registration, confirmation, sign-in and session restore are implemented.
 - Wallet-first sign-in is implemented. On Seeker it opens the installed Vault-compatible wallet. On other Android devices it asks an installed Mobile Wallet Adapter compatible Solana wallet to authorize.
 - A signed-in email or wallet account can already link a Solana wallet through the existing SIWS `link` intent.
-- Google and Apple providers are not configured and are therefore not shown as available actions.
+- Google is configured in Google Auth Platform and Supabase. The Android client starts a native browser OAuth flow, returns through `seekase://auth/callback`, and exchanges the PKCE code for a Supabase session. The Welcome screen exposes `Continue with Google`; release-device acceptance is still required before calling the flow production-verified.
+- Apple is not configured. The Welcome screen keeps Apple visibly disabled as `Coming Soon`.
+- Website, Instagram, YouTube, TikTok and X fields in Edit Profile are public profile links only. They are implemented and saved to `profiles.social_links`; they are not sign-in methods.
+- Edit Profile includes a private Sign-in methods panel. An authenticated email or wallet account can explicitly link Google; Apple remains disabled until provider setup. Verified email attachment, unlinking, a complete linked-method management screen and two-account merge/recovery remain unimplemented.
+- Apple activation remains blocked on owner-controlled console setup: an Apple Developer Services ID, signing key and generated secret are required in Supabase. Provider secrets must never be sent through chat or committed to this repository.
 
 ## Required Google setup
 
-1. Create the Seekase OAuth application in Google Auth Platform.
-2. Configure the Supabase callback shown on the Google provider page as an authorized redirect URI.
-3. Enable Google in Supabase Auth using the client ID and secret. Provider secrets never enter the app, `.env`, GitHub or `EXPO_PUBLIC_*` values.
-4. Add `seekase://auth/callback` to the Supabase redirect allow list. Keep `https://seekase.app` as the production website origin.
-5. Implement and test the Expo native callback/PKCE exchange on a release build.
+1. [x] Create the Seekase OAuth application in Google Auth Platform with an External audience and an owner test user.
+2. [x] Configure the Supabase callback shown on the Google provider page as an authorized redirect URI.
+3. [x] Enable Google in Supabase Auth using the client ID and secret. Provider secrets never enter the app, `.env`, GitHub or `EXPO_PUBLIC_*` values.
+4. [x] Add `seekase://auth/callback` to the Supabase redirect allow list. Keep `https://seekase.app` as the production website origin.
+5. [x] Implement the Expo native browser callback and PKCE code exchange.
+6. [ ] Verify new sign-in, returning sign-in, cancellation and session restore on a release-signed Seeker build.
 
 ## Required Apple setup
 
@@ -36,7 +41,7 @@ These are authentication methods for the same account. They do not create separa
 ## Linking behavior
 
 - When signed out, a provider signs into the Seekase user already linked to that provider or creates a new user.
-- When signed in, Account Settings offers **Link Google**, **Link Apple**, **Add email**, and **Link Solana wallet**. Linking always requires fresh proof from that provider.
+- When signed in, Edit Profile offers **Link Google** and can safely remove Google when another sign-in identity remains. The existing Collector Identity flow offers **Link Solana wallet**. Future account management adds **Link Apple**, **Add email**, and fuller identity details. Linking always requires fresh proof from that provider; unlinking must never leave an account without a sign-in method.
 - Supabase can automatically link OAuth identities that return the same verified email, but Seekase must still show the linked methods and use explicit manual linking for a different email.
 - If the selected Google, Apple or wallet identity already belongs to another Seekase user, do not silently move data or overwrite either profile. Use the separately documented two-proof account merge flow.
 - At least one working sign-in method must remain attached. Unlinking the final method is blocked.

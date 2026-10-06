@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
+import { SeekaseLockup } from '../../components/brand/seekase-lockup'
 import { CloudCollectionCard } from '../../components/discover/cloud-collection-card'
 import { CategoryChips } from '../../components/discover/category-chips'
 import { HeaderIcon } from '../../components/ui/header-icon'
@@ -122,8 +123,8 @@ export default function DiscoverScreen() {
     <Screen padded={false}>
       <View className="flex-row items-end justify-between px-5 pb-2">
         <View className="flex-1 pr-3">
-          <Text style={{ ...type.eyebrow, color: colors.faint }}>Seekase</Text>
-          <Text className="mt-0.5" style={{ ...type.title, color: colors.ink }}>
+          <SeekaseLockup width={136} />
+          <Text className="mt-1" style={{ ...type.title, color: colors.ink }}>
             Discover
           </Text>
         </View>
@@ -157,8 +158,8 @@ export default function DiscoverScreen() {
 
         {categoryId === 'all' && collectors.length > 0 ? (
           <View className="mt-6">
-            <Text className="mb-3 px-5" style={{ ...type.eyebrow, color: colors.faint }}>
-              Collectors to explore
+            <Text className="mb-3 px-5" style={{ ...type.eyebrow, textTransform: 'none', color: colors.faint }}>
+              COLLECTORS TO EXPLORE
             </Text>
             <ScrollView
               horizontal
@@ -203,8 +204,8 @@ export default function DiscoverScreen() {
         ) : null}
 
         <View className="mt-7 px-5">
-          <Text className="mb-3" style={{ ...type.eyebrow, color: colors.faint }}>
-            {categoryId === 'all' ? 'New cabinets' : categoryLabel(categoryId)}
+          <Text className="mb-3" style={{ ...type.eyebrow, textTransform: 'none', color: colors.faint }}>
+            {(categoryId === 'all' ? 'New cabinets' : categoryLabel(categoryId)).toLocaleUpperCase('en-US')}
           </Text>
           {query.isPending ? (
             <Text style={{ ...type.body, color: colors.muted }}>Loading public collections…</Text>
