@@ -91,4 +91,4 @@ The static website can be public independently of the application repository. If
 
 ## License
 
-No open-source license has been granted. Source availability for review does not by itself grant permission to copy, modify, or redistribute the project.
+Copyright 2026 KolTigin. Licensed under the [Apache License 2.0](LICENSE).
