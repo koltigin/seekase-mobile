@@ -46,6 +46,7 @@ The core mark must remain intelligible without Clay Marker. Monochrome applicati
 - Master construction canvas: `108 × 108` units.
 - Android guaranteed safe area: centered `66 × 66` units.
 - The S–K mark stays inside that safe area; the background extends edge-to-edge.
+- Center launcher and avatar artwork optically, not only by geometric bounds. The approved master offset is `+0.7 x / -3.2 y` on the `108 × 108` full-size canvas; the adaptive foreground uses `+0.6 x / -2.55 y` after safe-area scaling.
 - Minimum digital mark size: `24 px`; prefer `32 px` or larger.
 - Clear space around a standalone mark: at least the width of the clay square.
 - Do not rotate, outline, stretch, add shadows/gradients, recolor individual white strokes or move the clay square.
@@ -59,6 +60,8 @@ Android adaptive icons use three resources:
 3. `seekase-app-monochrome.svg` as the themeable monochrome layer.
 
 All layers are `108 × 108`. Important content remains inside the centered `66 × 66` safe zone so circular, squircle and OEM masks do not clip it. No background shadow or pre-applied mask belongs in the foreground source.
+
+Launcher, store, and social-avatar exports must come from the optically centered masters. Do not independently drag the mark inside a platform upload tool; use the supplied square asset at 100% scale.
 
 ## Solana dApp Store exports
 

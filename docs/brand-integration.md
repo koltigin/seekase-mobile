@@ -1,7 +1,7 @@
 # Seekase brand integration map
 
-Status date: 30 September 2026  
-Status: Seekase Brand System v1.1; identity-specific badge redesign integrated, physical-device recheck pending.
+Status date: 10 October 2026
+Status: Seekase Brand System v1.1.2; launcher and social-avatar optical centering updated, physical-device recheck pending.
 
 The canonical brand source lives in `assets/brand/`. Do not redraw or export a second logo family in another folder. New website, Android, store, deck, and badge outputs must be derived from these masters.
 
@@ -17,6 +17,7 @@ The canonical brand source lives in `assets/brand/`. Do not redraw or export a s
 | Wordmark                     | `seekase-wordmark-inverse.svg`, `seekase-wordmark-positive.svg` | Website, deck, and campaign source                                               |
 | Horizontal lockup            | `seekase-lockup-dark.svg`, `seekase-lockup-light.svg`           | Website plus onboarding and account-entry screens                                |
 | dApp Store icon              | `exports/solana-dapp-store/icon-512.png`                        | Final 512 × 512 export; launcher mark approved on physical Seeker                |
+| Social profile avatar        | `exports/social/avatar-1024.png`                                | Optically centered square source for X and other circular profile crops          |
 | dApp Store banner            | `exports/solana-dapp-store/banner-1024x500.png`                 | Final portal derivative from the canonical banner master                         |
 | Feature graphic              | `exports/solana-dapp-store/feature-graphic-1200.png`            | Final 1200 × 1200 export                                                         |
 | Navigation/action icons      | `icons/*.svg`                                                   | Source family represented by code-native equivalents in the signed Android build |
